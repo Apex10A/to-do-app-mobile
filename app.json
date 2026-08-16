@@ -12,7 +12,8 @@
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png"
-      }
+      },
+      "package": "com.apex10az.todoapp"
     },
     "web": {
       "output": "static",
@@ -52,6 +53,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "8a50664b-6f39-4bc1-94a4-f7239ecadd50"
+      }
     }
   }
 }
