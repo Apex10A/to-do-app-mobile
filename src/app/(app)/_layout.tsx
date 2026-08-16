@@ -1,26 +1,9 @@
 import { Tabs } from 'expo-router';
 import { Platform, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Brand } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-
-function TabIcon({
-  symbol,
-  focused,
-}: {
-  symbol: string;
-  focused: boolean;
-}) {
-  return (
-    <View style={[iconStyles.wrap, focused && iconStyles.wrapActive]}>
-      <View style={[iconStyles.dot, focused && iconStyles.dotActive]}>
-        <View style={{ opacity: focused ? 1 : 0.5 }}>
-          {/* text-based icon; swap with expo/vector-icons later */}
-        </View>
-      </View>
-    </View>
-  );
-}
 
 const iconStyles = StyleSheet.create({
   wrap: {
@@ -44,8 +27,23 @@ const iconStyles = StyleSheet.create({
   },
 });
 
+function TabIcon({ focused }: { focused: boolean }) {
+  return (
+    <View style={[iconStyles.wrap, focused && iconStyles.wrapActive]}>
+      <View style={[iconStyles.dot, focused && iconStyles.dotActive]} />
+    </View>
+  );
+}
+
 export default function AppLayout() {
-  const theme = useTheme();
+  const theme  = useTheme();
+  const insets = useSafeAreaInsets();
+
+  // Reserve exactly the device's bottom inset (home indicator / nav bar)
+  // plus a small visual padding above the labels.
+  const TAB_PADDING_TOP    = 8;
+  const TAB_PADDING_BOTTOM = insets.bottom + 4;   // sits above gesture bar / nav buttons
+  const TAB_HEIGHT         = 48 + TAB_PADDING_TOP + TAB_PADDING_BOTTOM;
 
   return (
     <Tabs
@@ -55,16 +53,19 @@ export default function AppLayout() {
           backgroundColor: theme.backgroundElement,
           borderTopColor: theme.border,
           borderTopWidth: StyleSheet.hairlineWidth,
-          paddingBottom: Platform.OS === 'ios' ? 20 : 8,
-          paddingTop: 8,
-          height: Platform.OS === 'ios' ? 80 : 60,
+          height:         TAB_HEIGHT,
+          paddingTop:     TAB_PADDING_TOP,
+          paddingBottom:  TAB_PADDING_BOTTOM,
+          // Prevent the navigator from adding its own safe-area padding on top of ours
+          ...(Platform.OS === 'android' && { elevation: 8 }),
         },
-        tabBarActiveTintColor: Brand.lavenderTonic,
+        tabBarActiveTintColor:   Brand.lavenderTonic,
         tabBarInactiveTintColor: theme.textSecondary,
         tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '600',
+          fontSize:     11,
+          fontWeight:   '600',
           letterSpacing: 0.2,
+          marginBottom:  2,
         },
       }}>
 
@@ -72,11 +73,7 @@ export default function AppLayout() {
         name="index"
         options={{
           title: 'Todos',
-          tabBarIcon: ({ focused }) => (
-            <View style={[iconStyles.wrap, focused && iconStyles.wrapActive]}>
-              <View style={[iconStyles.dot, focused && iconStyles.dotActive]} />
-            </View>
-          ),
+          tabBarIcon: ({ focused }) => <TabIcon focused={focused} />,
         }}
       />
 
@@ -84,11 +81,7 @@ export default function AppLayout() {
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ focused }) => (
-            <View style={[iconStyles.wrap, focused && iconStyles.wrapActive]}>
-              <View style={[iconStyles.dot, focused && iconStyles.dotActive]} />
-            </View>
-          ),
+          tabBarIcon: ({ focused }) => <TabIcon focused={focused} />,
         }}
       />
 
